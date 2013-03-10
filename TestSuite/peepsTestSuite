@@ -1,0 +1,19 @@
+#!/bin/sh
+
+echo "Doing Vary DB Size"
+date
+java -Xms64m -Xmx3096m -jar PEEPS.jar VaryDBSize          10 10000 100000 > peeps_res_VaryDBSize.csv
+echo "Doing Vary DB NumAttr"
+date
+java -Xms64m -Xmx3096m -jar PEEPS.jar VaryDBNumAttr       20 5 25           > peeps_res_VaryDBNumAttr.csv
+echo "Doing Vary DB NumValPerAttr"
+date
+java -Xms64m -Xmx3096m -jar PEEPS.jar VaryDBNumValPerAttr 20 5 25           > peeps_res_VaryDBNumValPerAttr.csv
+echo "Doing Vary PS NumAttr"
+date
+java -Xms64m -Xmx3096m -jar PEEPS.jar VaryPSNumAttr       10 1 10           > peeps_res_VaryPSNumAttr.csv
+echo "Doing Vary PS NumValPerAttr"
+date
+java -Xms64m -Xmx3096m -jar PEEPS.jar VaryPSNumValPerAttr 15 1 15           > peeps_res_VaryPSNumValPerAttr.csv
+echo "Done"
+date

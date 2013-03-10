@@ -1,0 +1,19 @@
+# Set root logger level to INFO and its only appender to CONSOLE1.
+#log4j.rootCategory=INFO, CONSOLE1
+ 
+log4j.category.uk.ac.cardiff.comsc.common=INFO, APP
+log4j.category.uk.ac.cardiff.comsc.kis.peeps.common=INFO, APP
+log4j.category.uk.ac.cardiff.comsc.kis.peeps.mediator=INFO, APP
+log4j.category.uk.ac.cardiff.comsc.kis.peeps.preference=INFO, APP
+log4j.category.uk.ac.cardiff.comsc.kis.peeps.user.agent=INFO, APP
+log4j.category.uk.ac.cardiff.comsc.kis.peeps.vendor.agent=INFO,APP
+log4j.category.uk.ac.cardiff.comsc.kis.peeps.vendor.database=INFO, APP
+ 
+# CONSOLE1
+#log4j.appender.APP=org.apache.log4j.ConsoleAppender
+#log4j.appender.APP.layout=org.apache.log4j.TTCCLayout
+
+# File
+log4j.appender.APP=org.apache.log4j.FileAppender
+log4j.appender.APP.file=Peeps.log
+log4j.appender.APP.layout=org.apache.log4j.TTCCLayout    

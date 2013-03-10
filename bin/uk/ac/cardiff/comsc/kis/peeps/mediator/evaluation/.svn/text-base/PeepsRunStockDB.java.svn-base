@@ -1,0 +1,261 @@
+package uk.ac.cardiff.comsc.kis.peeps.mediator.evaluation;
+
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.apache.commons.math.random.RandomData;
+import org.apache.commons.math.random.RandomDataImpl;
+import org.apache.log4j.Logger;
+
+import uk.ac.cardiff.comsc.kis.peeps.mediator.Peeps;
+import uk.ac.cardiff.comsc.kis.peeps.vendor.database.DatabaseConnection;
+
+
+public class PeepsRunStockDB {
+	
+	/** Logger */
+	static Logger logger = Logger.getLogger(PeepsRunStockDB.class);
+
+	private static int numOfDatabases = 0;
+	
+	// The ID of the database
+	private int id;
+	
+	// How many items are in the DB
+	private int sizeOfDB;
+	
+	// How many attributes
+	private int numAttributes;
+	
+	// How many values per attribute
+	private int numValuesPerAttribute;
+	
+	// Data generation method
+	private int dataGenMethod;
+
+	private int dataGenMethodPrice;
+	private double minPrice, maxPrice;
+
+	
+	
+	private DatabaseConnection dbConn;
+	
+	
+	/** Constructors */
+	public PeepsRunStockDB(int _sizeOfDB, int _numAttributes, int _numValuesPerAttribute, int _dataGenMethod, int _dataGenMethodPrice, double _minPrice, double _maxPrice) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Created New PeepsRunStockDB object - id '" + (numOfDatabases + 1) + "' | Size '" + _sizeOfDB + "' | NumAttr '" + _numAttributes + "' | NumValPerAttr '" + _numValuesPerAttribute + "' | DataGenMeth '" + Peeps.getName(_dataGenMethod) + "' |");
+		}
+		
+		// Increment number of PeepsRunStockDB instances
+		numOfDatabases++;
+		id = numOfDatabases;
+		
+		sizeOfDB = _sizeOfDB;
+		numAttributes = _numAttributes;
+		numValuesPerAttribute = _numValuesPerAttribute;
+		dataGenMethod = _dataGenMethod;
+
+		dataGenMethodPrice = _dataGenMethodPrice;
+		minPrice = _minPrice;
+		maxPrice = _maxPrice;
+	}
+	
+	
+	/** Getters and Setters */
+	
+	public int getID() {
+		return this.id;
+	}
+	
+	public int getDataGenMethod() {
+		return this.dataGenMethod;
+	}
+	
+	public int getNumAttributes() {
+		return this.numAttributes;
+	}
+	
+	public int getNumValuesPerAttribute() {
+		return this.numValuesPerAttribute;
+	}
+	
+	public int getSizeOfDB() {
+		return this.sizeOfDB;
+	}
+
+	
+	/** Public methods */
+	
+	public void runSetup() {
+		
+		// Open database connection
+		dbConn = new DatabaseConnection();
+		dbConn.openConnection();
+		
+		// Check if we've already set up the db
+		
+		if (!checkIfDBExists()) {
+			// Do the stuff
+			createDB();
+			populateDB();
+		}
+		
+		// Close database connection
+		dbConn.closeConnection();
+		dbConn = null;
+	}
+	
+	
+	/** Private methods */
+	
+	private boolean checkIfDBExists() {
+		boolean exists = false;
+		if (logger.isDebugEnabled()) {
+			logger.debug("Check if database with id '" + id + "' already exists");
+		}
+		DatabaseMetaData dbMD = dbConn.getMetaData();
+		try {
+			String[] types = {"TABLE"};
+	        ResultSet resultSet = dbMD.getTables(null, null, "%", types);
+	        
+			while (resultSet.next()) {
+				if (resultSet.getString(3).equals("StockDB_" + id)) {
+					exists = true;
+				}
+			}
+		} catch (SQLException e) {
+			logger.error("Error figuring out if db already exists: " + e.getMessage());
+		}
+		if (logger.isDebugEnabled()) {
+			if (exists) {
+				logger.debug("Table already exists, not creating again");
+			} else {
+				logger.debug("Table doesn't exist, creating");
+			}
+		}
+		return exists;
+	}
+	
+	private void createDB() {
+		if (logger.isInfoEnabled()) {
+			logger.info("Creating database with id '" + id + "'");
+		}
+		String sql = new String();
+		
+		// Build an SQL Statement that creates the table for this datagenmethod 
+		
+		// Common bits first
+		sql = "CREATE TABLE StockDB_" + id + " (" +
+		"prefrank integer, " +
+		"id integer NOT NULL AUTO_INCREMENT,";
+
+		// Then the datagenmethod specific attrs
+		switch(dataGenMethod) {
+		case Peeps.DATAGEN_CAR_SIMPLE_EXAMPLE:
+			sql += "make char(10)," +
+			"model char(10)," +
+			"colour char(10)," +
+			"engine_size char(10)," +
+			"electric_windows char(1)," +
+			"sunroof char(1),";
+			break;
+		case Peeps.DATAGEN_RANDOM_UNIFORM:
+	        for (int i = 1; i <= numAttributes; i++) {
+	        	sql += "Attr_" + i + " char(2),";
+	        }
+	        break;
+		}
+		
+		// Then the common ending
+		sql += "price decimal(7,2)," +
+		"primary key (id)" +
+	    ")";
+
+		// Now run the sql
+		if (logger.isDebugEnabled()) {
+			logger.debug("* Executing SQL: " + sql);
+		}
+		int numRowsAffected = dbConn.executeSQL(sql);
+		if (logger.isInfoEnabled()) {
+			logger.info("* Finished creating database - " + numRowsAffected + " rows affected.");
+		}
+	}
+
+	private void populateDB() {
+		if (logger.isInfoEnabled()) {
+			logger.info("Populating database with id '" + id + "', using method '" + Peeps.getName(dataGenMethod) +"'");
+		}
+		String sql = new String();
+		int numRowsAffected = 0;
+		
+		// Then the datagenmethod specific attrs
+		switch(dataGenMethod) {
+		case Peeps.DATAGEN_CAR_SIMPLE_EXAMPLE:
+			numRowsAffected += dbConn.executeSQL("INSERT INTO StockDB_" + id + " (make, model, colour, engine_size, electric_windows, sunroof, price) " +
+			"VALUES ('BMW', '850', 'Black', 3000, 'Y', 'Y', 25999.00)");
+			numRowsAffected += dbConn.executeSQL("INSERT INTO StockDB_" + id + " (make, model, colour, engine_size, electric_windows, sunroof, price) " +
+			"VALUES ('Mercedes', '400CSL', 'Silver', 3000, 'Y', 'Y', 27999.00)");
+			numRowsAffected += dbConn.executeSQL("INSERT INTO StockDB_" + id + " (make, model, colour, engine_size, electric_windows, sunroof, price) " +
+			"VALUES ('Toyota', 'MR2', 'Silver', 1998, 'Y', 'N', 6250.00)");
+			numRowsAffected += dbConn.executeSQL("INSERT INTO StockDB_" + id + " (make, model, colour, engine_size, electric_windows, sunroof, price) " +
+			"VALUES ('Mercedes', '350CSL', 'Silver', 2500, 'Y', 'N', 26999.00)");
+			numRowsAffected += dbConn.executeSQL("INSERT INTO StockDB_" + id + " (make, model, colour, engine_size, electric_windows, sunroof, price) " +
+			"VALUES ('Mercedes', '350CSL', 'White', 3500, 'N', 'N', 22999.00)");
+			numRowsAffected += dbConn.executeSQL("INSERT INTO StockDB_" + id + " (make, model, colour, engine_size, electric_windows, sunroof, price) " +
+			"VALUES ('Ford', 'Mondeo', 'Silver', 2000, 'Y', 'N', 12999.00)");
+			numRowsAffected += dbConn.executeSQL("INSERT INTO StockDB_" + id + " (make, model, colour, engine_size, electric_windows, sunroof, price) " +
+			"VALUES ('Mercedes', '350CSL', 'Black', 4000, 'N', 'N', 22999.00)");
+			numRowsAffected += dbConn.executeSQL("INSERT INTO StockDB_" + id + " (make, model, colour, engine_size, electric_windows, sunroof, price) " +
+			"VALUES ('Ford', 'Focus', 'Blue', 1500, 'N', 'N', 12999.00)");
+			numRowsAffected += dbConn.executeSQL("INSERT INTO StockDB_" + id + " (make, model, colour, engine_size, electric_windows, sunroof, price) " +
+			"VALUES ('Lexus', 'IS200', 'Green', 2500, 'Y', 'Y', 12499.00)");
+			numRowsAffected += dbConn.executeSQL("INSERT INTO StockDB_" + id + " (make, model, colour, engine_size, electric_windows, sunroof, price) " +
+			"VALUES ('Mercedes', '200CSL', 'Black', 1500, 'N', 'N', 13499.00)");
+			break;
+			
+		case Peeps.DATAGEN_RANDOM_UNIFORM:
+			
+			// Setup random thing
+			RandomData randomData = new RandomDataImpl();
+			
+			// For as many values as we want, create an insert statement for all
+			for (int val = 1; val <= sizeOfDB; val++) {
+				
+				sql = "INSERT INTO StockDB_" + id + " (";
+				
+				for (int attrNum = 1; attrNum <= numAttributes; attrNum++) {
+					sql += "Attr_" + attrNum + ", ";
+				}
+
+				sql += "Price) VALUES (";
+				
+				for (int attrNum = 1; attrNum <= numAttributes; attrNum++) {
+					sql += (int)randomData.nextUniform(1, numValuesPerAttribute) + ", ";
+				}
+				if (dataGenMethodPrice == Peeps.PRICEGEN_RANDOM_UNIFORM) {
+					sql += (double)randomData.nextUniform(minPrice, maxPrice);
+				}
+				sql += ")";
+				
+				if (logger.isDebugEnabled()) {
+					logger.debug("* * Executing SQL for tuple " + val +": " + sql);
+				}
+				numRowsAffected += dbConn.executeSQL(sql);
+			}
+		}
+
+		// Now run the sql
+		if (logger.isInfoEnabled()) {
+			logger.info("* Finished populating database - " + numRowsAffected + " rows affected.");
+		}
+	}
+	
+	
+	/** Object output methods */
+	
+	public String toString() {
+		return new String("PeepsRunStockDBToString.toString not implemented");
+	}
+}

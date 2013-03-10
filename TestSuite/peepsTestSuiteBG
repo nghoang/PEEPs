@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo "Doing Vary PS NumValPerAttr"
+date
+java -Xms64m -Xmx3096m -jar PEEPS.jar VaryPSNumValPerAttr 15 1 15           > peeps_res_VaryPSNumValPerAttr.csv
+echo "Done"
+date

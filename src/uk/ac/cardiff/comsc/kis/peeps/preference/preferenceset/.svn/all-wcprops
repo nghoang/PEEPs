@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/RS-PhD-CodeMain/!svn/ver/21/PEEPS/src/uk/ac/cardiff/comsc/kis/peeps/preference/preferenceset
+END
+UnknownAttributeTypeException.java
+K 25
+svn:wc:ra_dav:version-url
+V 131
+/svn/RS-PhD-CodeMain/!svn/ver/6/PEEPS/src/uk/ac/cardiff/comsc/kis/peeps/preference/preferenceset/UnknownAttributeTypeException.java
+END
+NumericAttribute.java
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/RS-PhD-CodeMain/!svn/ver/11/PEEPS/src/uk/ac/cardiff/comsc/kis/peeps/preference/preferenceset/NumericAttribute.java
+END
+Attribute.java
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/RS-PhD-CodeMain/!svn/ver/7/PEEPS/src/uk/ac/cardiff/comsc/kis/peeps/preference/preferenceset/Attribute.java
+END
+DiscreteAttribute.java
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/RS-PhD-CodeMain/!svn/ver/7/PEEPS/src/uk/ac/cardiff/comsc/kis/peeps/preference/preferenceset/DiscreteAttribute.java
+END
+PreferenceSet.java
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/RS-PhD-CodeMain/!svn/ver/21/PEEPS/src/uk/ac/cardiff/comsc/kis/peeps/preference/preferenceset/PreferenceSet.java
+END
+AttributeCollection.java
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/RS-PhD-CodeMain/!svn/ver/6/PEEPS/src/uk/ac/cardiff/comsc/kis/peeps/preference/preferenceset/AttributeCollection.java
+END

@@ -1,0 +1,115 @@
+package uk.ac.cardiff.comsc.kis.peeps.vendor.database;
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+
+import org.apache.log4j.Logger;
+
+import uk.ac.cardiff.comsc.kis.peeps.vendor.database.results.Result;
+import uk.ac.cardiff.comsc.kis.peeps.vendor.database.results.ResultCollection;
+
+public class DatabaseConnection {
+	
+	/** Logger */
+	static Logger logger = Logger.getLogger(DatabaseConnection.class);
+
+	// Database connection
+	Connection conn = null;
+
+	/** Constructors */
+	public DatabaseConnection() {
+
+	}
+	
+	
+	/** Public Methods */
+	
+	public void openConnection() {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Opening Connection to Database");
+		}
+		
+		try {
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			conn  = DriverManager.getConnection("jdbc:mysql:///PEEPS", "root", "rootpword");
+			
+			if (!conn.isClosed()) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Successfully connected to MySQL server using TCP/IP...");
+				}
+			}
+		} catch (Exception e) {
+			logger.error("Error opening connection to database: " + e.getMessage());
+		}
+	}
+	
+	public void closeConnection() {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Closing connection to Database");
+		}
+		try {
+			if (conn != null) {
+				conn.close();
+			}
+		} catch (SQLException e) {
+			logger.error("Error closing connection to database: " + e.getMessage());
+		}
+	}
+	
+	public void resetDB() {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Resetting Database - dropping and creating database 'PEEPS'");
+		}
+		openConnection();
+		executeSQL("DROP DATABASE PEEPS");
+		executeSQL("CREATE DATABASE PEEPS");
+		closeConnection();
+	}
+
+	
+	public int executeSQL(String sqlToExecute) {
+		int numRowsAffected = 0;
+		try {
+			Statement st = conn.createStatement();
+			numRowsAffected = st.executeUpdate(sqlToExecute);
+		} catch (Exception e) {
+			logger.error("Exception: " + e.getMessage());
+		}
+		return numRowsAffected;
+	}
+	
+	public ResultSet sendQuery(String query) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Sending query: " + query);
+		}
+		ResultSet rs = null;
+		try {
+
+			Statement sqlStatement;
+			sqlStatement = conn.createStatement();
+
+			if (logger.isDebugEnabled()) {
+				logger.debug("Executing query");
+			}
+			rs = sqlStatement.executeQuery(query);
+
+		} catch (SQLException e) {
+			logger.error("Error executing query: " + e.getMessage());
+		}
+		return rs;
+	}
+	
+	public DatabaseMetaData getMetaData() {
+		try {
+			return conn.getMetaData();
+		} catch (SQLException e) {
+			logger.error("Error executing query: " + e.getMessage());
+			return null;
+		}
+	}
+}

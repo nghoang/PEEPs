@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo "Doing Vary DB NumAttr"
+date
+java -Xms64m -Xmx1536m -jar PEEPS.jar VaryDBNumAttr       20 5 25           > peeps_res_VaryDBNumAttr.csv
+echo "Done"
+date
